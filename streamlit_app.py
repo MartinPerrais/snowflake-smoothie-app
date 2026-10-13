@@ -30,7 +30,7 @@ ingredients = st.multiselect(
     max_selections=5
 )
 
-# Display the selected ingredients (clean GUI)
+# Display the selected ingredients
 if ingredients:
     ingredients_string = ''
 
@@ -60,22 +60,6 @@ if ingredients:
     time_to_insert = st.button('Submit Order')
 
     # Insert the order into Snowflake
-    if time_to_insert:
-        session.sql(my_insert_stmt).collect()
-        st.success(f'Your Smoothie is ordered, {name_on_order}!', icon="✅")
-
-    # Writing out the ingredient
-    st.write(ingredients_string)
-
-    # Build the SQL INSERT statement
-    my_insert_stmt = (
-    "INSERT INTO SMOOTHIES.PUBLIC.ORDERS (INGREDIENTS, NAME_ON_ORDER) "
-    "VALUES ('" + ingredients_string + "', '" + name_on_order + "')"
-    )
-
-    time_to_insert = st.button('Submit Order')
-
-    # Insert the order into Snowflake with submit button
     if time_to_insert:
         session.sql(my_insert_stmt).collect()
         st.success(f'Your Smoothie is ordered, {name_on_order}!', icon="✅")
