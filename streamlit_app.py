@@ -34,19 +34,26 @@ ingredients = st.multiselect(
 if ingredients:
     ingredients_string = ''
 
-    # Loop through each selected fruit
+        # Loop through each selected fruit
     for fruit_chosen in ingredients:
         ingredients_string += fruit_chosen + ' '
 
+        st.subheader(f"{fruit_chosen} Nutrition Information")
+
+        fruit_name = fruit_chosen.lower().rstrip("s")
+
         fruit_response = requests.get(
-            "https://www.fruityvice.com/api/fruit/watermelon",
+            f"https://www.fruityvice.com/api/fruit/{fruit_name}",
             timeout=10
         )
 
-        sf_df = st.dataframe(
-            data=fruit_response.json(),
-            use_container_width=True
-        )
+        if fruit_response.status_code == 200:
+            sf_df = st.dataframe(
+                data=fruit_response.json(),
+                use_container_width=True
+            )
+        else:
+            st.warning(f"Nutrition information unavailable for {fruit_chosen}.")
 
     # Display selected ingredients
     st.write(ingredients_string)
