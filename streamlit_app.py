@@ -35,18 +35,34 @@ if ingredients:
     ingredients_string = ''
 
     # Loop through each selected fruit
-      for fruit_chosen in ingredients:
-      ingredients_string += fruit_chosen + ' '
+    for fruit_chosen in ingredients:
+        ingredients_string += fruit_chosen + ' '
 
-      fruit_response = requests.get(
-        "https://www.fruityvice.com/api/fruit/watermelon",
-        timeout=10
+        fruit_response = requests.get(
+            "https://www.fruityvice.com/api/fruit/watermelon",
+            timeout=10
+        )
+
+        sf_df = st.dataframe(
+            data=fruit_response.json(),
+            use_container_width=True
+        )
+
+    # Display selected ingredients
+    st.write(ingredients_string)
+
+    # Build the SQL INSERT statement
+    my_insert_stmt = (
+        "INSERT INTO SMOOTHIES.PUBLIC.ORDERS (INGREDIENTS, NAME_ON_ORDER) "
+        "VALUES ('" + ingredients_string + "', '" + name_on_order + "')"
     )
 
-      sf_df = st.dataframe(
-        data=fruit_response.json(),
-        use_container_width=True
-    )
+    time_to_insert = st.button('Submit Order')
+
+    # Insert the order into Snowflake
+    if time_to_insert:
+        session.sql(my_insert_stmt).collect()
+        st.success(f'Your Smoothie is ordered, {name_on_order}!', icon="✅")
 
     # Writing out the ingredient
     st.write(ingredients_string)
