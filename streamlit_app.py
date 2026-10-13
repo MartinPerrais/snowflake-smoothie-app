@@ -53,11 +53,19 @@ if ingredients:
         session.sql(my_insert_stmt).collect()
         st.success(f'Your Smoothie is ordered, {name_on_order}!', icon="✅")
 
-# New section to display SmoothieFroot nutrition information
+# New section to display fruit nutrition information
 import requests
-  
-smoothiefroot_response = requests.get(
-      "https://my.smoothiefroot.com/api/fruit/watermelon"
-  )
-  
-st.text(smoothiefroot_response)
+
+fruit_response = requests.get(
+    "https://www.fruityvice.com/api/fruit/watermelon",
+    timeout=10
+)
+
+fruit_response.raise_for_status()
+
+st.text(fruit_response.json())
+
+sf_df = st.dataframe(
+    data=fruit_response.json(),
+    use_container_width=True
+)
