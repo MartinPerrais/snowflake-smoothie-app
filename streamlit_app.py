@@ -2,6 +2,7 @@
 import streamlit as st
 import os
 import requests
+import pandas as pd
 from snowflake.snowpark.functions import col
 
 # Write directly to the app
@@ -18,7 +19,10 @@ st.write('The name on your Smoothie will be:', name_on_order)
 conn = st.connection("snowflake", ttl=os.getenv("SNOWFLAKE_CONNECTION_TTL"))
 session = conn.session()
 
-my_dataframe = session.table("SMOOTHIES.PUBLIC.FRUIT_OPTIONS").select(col("FRUIT_NAME"))
+my_dataframe = session.table("SMOOTHIES.PUBLIC.FRUIT_OPTIONS").select(col("FRUIT_NAME"),col("SEARCH_ON"))
+
+# Convert Snowpark DataFrame to Pandas
+pd_df = my_dataframe.to_pandas()
 
 # Display the data in our Streamlit app
 # st.dataframe(data=my_dataframe, use_container_width=True)
@@ -26,7 +30,7 @@ my_dataframe = session.table("SMOOTHIES.PUBLIC.FRUIT_OPTIONS").select(col("FRUIT
 # Allow users to select multiple fruits
 ingredients = st.multiselect(
     "Choose up to 5 ingredients:",
-    my_dataframe,
+    pd_df["FRUIT_NAME"].tolist(),
     max_selections=5
 )
 
@@ -34,9 +38,22 @@ ingredients = st.multiselect(
 if ingredients:
     ingredients_string = ''
 
-        # Loop through each selected fruit
+    # Loop through each selected fruit
     for fruit_chosen in ingredients:
         ingredients_string += fruit_chosen + ' '
+
+        search_on = pd_df.loc[
+            pd_df["FRUIT_NAME"] == fruit_chosen,
+            "SEARCH_ON"
+        ].iloc[0]
+
+        st.write(
+            "The search value for ",
+            fruit_chosen,
+            " is ",
+            search_on,
+            "."
+        )
 
         st.subheader(f"{fruit_chosen} Nutrition Information")
 
