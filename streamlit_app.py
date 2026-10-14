@@ -57,8 +57,6 @@ if ingredients:
 
         st.subheader(f"{fruit_chosen} Nutrition Information")
 
-        fruit_name = fruit_chosen.lower().rstrip("s")
-
         fruit_response = requests.get(
             f"https://www.fruityvice.com/api/fruit/{fruit_name}",
             timeout=10
